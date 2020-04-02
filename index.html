@@ -98,6 +98,7 @@
         <div class='leftSide'>
             <button id='clear'>Clear</button>
             <button id='resize'>Resize</button>
+            <button id='embed'>Embed</button>
         </div>
         <div class='rightSide'>
             <label for='colorDefault'>
@@ -114,6 +115,7 @@
    <script>
        let selectedSize = [];
        let select;
+       let leftSide = document.querySelector('.leftSide')
        let radioColor = 'dark';
        function pickRandomColor() {return `rgb(${Math.random()*255},${Math.random()*255},${Math.random()*255})`};
        function createGrid(rows, columns) {
@@ -171,8 +173,41 @@
        document.querySelector('#colorDefault').addEventListener('click', () => {radioColor = 'dark'})
        document.querySelector('#colorColorful').addEventListener('click', () => {radioColor = 'colorful'});
        document.querySelector('#colorGrayscale').addEventListener('click', () => {radioColor = 'grayscale'});
-       createGrid(100,100);
-       alert('heelo')
+
+       let newSize;
+       let divString;
+       let embed = document.getElementById('embed');
+       embed.addEventListener('click', event => {
+           leftSide.removeChild(embed);
+           newSize = document.createElement('input');
+           //newSize.classList.add('newSide');
+           leftSide.appendChild(newSize);
+           divString = document.createElement('input');
+           //divArray.classList.add('divArray');
+           //divString.addEventListener('change', event => {
+           //})
+           leftSide.appendChild(divString);
+       })
+       
+       function decode() {
+           let rows = newSize.value.slice(0, newSize.value.indexOf(','));   
+           let columns = newSize.value.slice((newSize.value.indexOf(',')+1), newSize.value.length);
+           let gridContainer = document.createElement('div');
+           let divArray = divString.value.split('X')
+           gridContainer.setAttribute('id', 'gridContainer');
+           document.querySelector('.gridArea').appendChild(gridContainer);
+           let side;
+           (columns > rows) ? side = 600 / columns : side = 600 / rows;
+           gridContainer.style.gridTemplate = `repeat(${rows}, ${side}px) / repeat(${columns}, ${side}px)`
+           gridContainer.style.width = side * columns + 'px';
+           gridContainer.style.height = side * rows + 'px';
+           for (let i = 0; i < (rows * columns); i++) {
+               let square = document.createElement('div');
+               square.classList.add('item');
+               gridContainer.appendChild(square);
+               square.style.backgroundColor = divArray[i];
+           }
+        }
         </script>
     </body>
 </html>
