@@ -1,43 +1,177 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap" rel="stylesheet"> 
         <meta charset="utf-8">
         <title>Sketch pad</title>
         <style>
+            body {
+                background-color: #e9c7c0;/*#da9; #cba;*/
+                font-family: 'Roboto Mono', monospace;
+                color:midnightblue;
+                display:grid;
+                grid:
+                [row1-start]'title title title title title title' 250px [row1-end]
+                [row2-start]'leftSide gridArea gridArea gridArea gridArea rightSide' 250px [row2-end]
+                [row3-start]'leftSide gridArea gridArea gridArea gridArea rightSide' 250px [row3-end]
+                [row4-start]'leftSide gridArea gridArea gridArea gridArea rightSide' 250px [row4-end]
+                / 300px 300px 300px 300px 300px 300px ;
+                width: 1800px;
+                height: 1000px;
+                margin: auto;
+            }
+            .title {
+                grid-area: title;
+                font-size: 12em;
+                text-align: center;
+            }
+            .leftSide {
+                grid-area: leftSide;
+            }
+            #clear, #resize {
+                border: solid #dfb9a4 5px;
+                border-radius: 4px;
+                width: 60%;
+                height: 10%;
+                font-family: inherit;
+                margin: 5px;
+                background-color: transparent;
+                color:inherit;
+                font-size: 18px;
+            }
+            #clear:hover, #resize:hover {
+                background-color: #dfb9a4;
+                font-size: 19px;
+            }
+            .rightSide {
+                grid-area: rightSide;
+            }
+            label {
+                width:80%;
+                display: flex;
+                flex-direction: row;
+                align-items:center ;
+                margin: 5px auto;
+            }
+            label:hover {
+                font-size: 19px;
+            }
+            #colorDefault, #colorColorful, #colorGrayscale {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                width:40px;
+                height:40px;
+                border: solid #dfb9a4 5px;
+                border-radius: 4px;
+                margin: auto 10px;
+            }
+            #colorDefault:checked, #colorColorful:checked, #colorGrayscale:checked  {
+                background-color: #dfb9a4;
+            }
+            .leftSide, .rightSide {
+                font-size: 18px;
+                display:flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .gridArea {
+                grid-area: gridArea;
+            }
             #gridContainer {
                 background-color: antiquewhite;
                 display: grid;
-                border-left: solid 1px;
-                border-top:solid 1px;
+                border-left: solid #666 1px;
+                border-top:solid #666 1px;
+                margin:auto;
+                margin-top: 5%;
             }
             .item {
-                border-bottom:solid 1px;
-                border-right:solid 1px;
+                border-bottom:solid #666 1px;
+                border-right:solid #666 1px;
             }
         </style>
     </head>
     <body>
-        <div id='gridContainer'>
+        <div class='title'>Pixel drawing!</div>
+        <div class='leftSide'>
+            <button id='clear'>Clear</button>
+            <button id='resize'>Resize</button>
         </div>
-    <script>
-        let gridContainer = document.querySelector('#gridContainer');
-        function createGrid(rows, columns) {
-            let side;
-            (columns > rows) ? side = 600 / columns : side = 600 / rows;
-            gridContainer.style.gridTemplate = `repeat(${columns}, ${side}px) / repeat(${rows}, ${side}px)`
-            gridContainer.style.width = side * rows + 'px';
-            gridContainer.style.height = side * columns + 'px';
-            for (let i = 0; i < (rows * columns); i++) {
-                let square = document.createElement('div');
-                square.classList.add('item');
-                gridContainer.appendChild(square);
-            }
-            gridContainer.addEventListener('mousemove', event => {
-                if(event.target === gridContainer) return;
-                event.target.style.backgroundColor = 'black';
+        <div class='rightSide'>
+            <label for='colorDefault'>
+            <input type='radio' id='colorDefault' name='color'> Dark
+            </label>
+            <label for='colorColorful'>
+            <input type='radio' id='colorColorful' name='color'> Colorful
+            </label>
+            <label for='colorGrayscale'>
+            <input type='radio' id='colorGrayscale' name='color'> Grayscale
+            </label>
+        </div>
+        <div class='gridArea'></div>
+   <script>
+       let selectedSize = [];
+       let select;
+       let radioColor = 'dark';
+       function pickRandomColor() {return `rgb(${Math.random()*255},${Math.random()*255},${Math.random()*255})`};
+       function createGrid(rows, columns) {
+           let gridContainer = document.createElement('div');
+           gridContainer.setAttribute('id', 'gridContainer');
+           document.querySelector('.gridArea').appendChild(gridContainer);
+           let side;
+           (columns > rows) ? side = 600 / columns : side = 600 / rows;
+           gridContainer.style.gridTemplate = `repeat(${rows}, ${side}px) / repeat(${columns}, ${side}px)`
+           gridContainer.style.width = side * columns + 'px';
+           gridContainer.style.height = side * rows + 'px';
+           for (let i = 0; i < (rows * columns); i++) {
+               let square = document.createElement('div');
+               square.classList.add('item');
+               square.setAttribute('mark','0');
+               square.setAttribute('dataColor','')
+               gridContainer.appendChild(square);
+           }
+           gridContainer.addEventListener('mousemove', event => {
+                        if(event.target === gridContainer) return;
+                switch (radioColor) {
+                    case 'dark':
+                        event.target.style.backgroundColor = '#213';
+                        event.target.attributes.dataColor.value = '999';
+                    break;
+                    case 'colorful':
+                        event.target.style.backgroundColor = pickRandomColor();
+                        event.target.attributes.dataColor.value = '999';
+                    break;
+                    case 'grayscale':
+                        if (+(event.target.getAttribute('mark'))) {
+                            if (event.target.attributes.dataColor.value > 110) {
+                            event.target.attributes.dataColor.value -= 111;
+                            }
+                            event.target.style.backgroundColor = '#' + event.target.attributes.dataColor.value;
+                        } else if (!(+(event.target.getAttribute('mark')))) {
+                        event.target.attributes.mark.value = 1;
+                        event.target.attributes.dataColor.value = '999'
+                        event.target.style.backgroundColor = '#999';
+                        };
+                };
             });
-        }
-        createGrid(100,100)
+       };
+       function clear() {
+        document.querySelector('#gridContainer').parentNode.removeChild(document.querySelector('#gridContainer'));
+        selectedSize[0] ? createGrid(+(selectedSize[0]), +(selectedSize[1])) : createGrid(100,100);
+       }
+       document.getElementById('clear').addEventListener('click', clear);
+       document.getElementById('resize').addEventListener('click', event => {
+           select = prompt('What size do you want?');
+           selectedSize[0] = select.slice(0, select.indexOf(','));
+           selectedSize[1] = select.slice(select.indexOf(',') + 1, select.length);
+           clear();
+       })
+       document.querySelector('#colorDefault').addEventListener('click', () => {radioColor = 'dark'})
+       document.querySelector('#colorColorful').addEventListener('click', () => {radioColor = 'colorful'});
+       document.querySelector('#colorGrayscale').addEventListener('click', () => {radioColor = 'grayscale'});
+       createGrid(100,100);
         </script>
     </body>
 </html>
