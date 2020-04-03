@@ -28,7 +28,7 @@
             .leftSide {
                 grid-area: leftSide;
             }
-            #clear, #resize {
+            .leftSide > button {
                 border: solid #dfb9a4 5px;
                 border-radius: 4px;
                 width: 60%;
@@ -39,7 +39,7 @@
                 color:inherit;
                 font-size: 18px;
             }
-            #clear:hover, #resize:hover {
+            #clear:hover, #resize:hover, #embed:hover {
                 background-color: #dfb9a4;
                 font-size: 19px;
             }
@@ -98,7 +98,7 @@
         <div class='leftSide'>
             <button id='clear'>Clear</button>
             <button id='resize'>Resize</button>
-            <button id='embed'>Embed</button>
+            <button id='embed'>Embed options</button>
         </div>
         <div class='rightSide'>
             <label for='colorDefault'>
@@ -161,7 +161,7 @@
        };
        function clear() {
         document.querySelector('#gridContainer').parentNode.removeChild(document.querySelector('#gridContainer'));
-        selectedSize[0] ? createGrid(+(selectedSize[0]), +(selectedSize[1])) : createGrid(100,100);
+        selectedSize[0] ? createGrid(+(selectedSize[0]), +(selectedSize[1])) : createGrid(75,75);
        }
        document.getElementById('clear').addEventListener('click', clear);
        document.getElementById('resize').addEventListener('click', event => {
@@ -174,26 +174,54 @@
        document.querySelector('#colorColorful').addEventListener('click', () => {radioColor = 'colorful'});
        document.querySelector('#colorGrayscale').addEventListener('click', () => {radioColor = 'grayscale'});
 
+       createGrid(75,75);
+
        let newSize;
        let divString;
+       let decodeButton;
+       let encodeButton;
        let embed = document.getElementById('embed');
        embed.addEventListener('click', event => {
            leftSide.removeChild(embed);
            newSize = document.createElement('input');
-           //newSize.classList.add('newSide');
+           newSize.classList.add('newSide');
            leftSide.appendChild(newSize);
            divString = document.createElement('input');
-           //divArray.classList.add('divArray');
+           divString.classList.add('divString');
            //divString.addEventListener('change', event => {
            //})
            leftSide.appendChild(divString);
+           decodeButton = document.createElement('button');
+           decodeButton.classList.add('decodeButton');
+           decodeButton.textContent = 'Create this drawing'
+           leftSide.appendChild(decodeButton);
+           decodeButton.addEventListener('click', event => {
+               gridContainer.parentNode.removeChild(gridContainer);
+               decode();
+           })
+           encodeButton = document.createElement('button');
+           encodeButton.textContent = 'Encode current drawing';
+           leftSide.appendChild(encodeButton);
+           encodeButton.addEventListener('click', event => {
+               encode();
+           })
        })
        
+       function encode() {
+           let encodeString = '';
+           let encodeTextfield = document.createElement('input');
+           leftSide.appendChild(encodeTextfield);
+           for (let i = 0; i < gridContainer.children.length; i++) {
+                gridContainer.children.item(i).attributes.length === 4 ? encodeString += gridContainer.children.item(i).attributes.style.value.slice(18) : encodeString += ';';
+           };
+           encodeTextfield.value = encodeString;
+       }
+
        function decode() {
-           let rows = newSize.value.slice(0, newSize.value.indexOf(','));   
-           let columns = newSize.value.slice((newSize.value.indexOf(',')+1), newSize.value.length);
+           let rows = +(newSize.value.slice(0, newSize.value.indexOf(',')));
+           let columns = +(newSize.value.slice((newSize.value.indexOf(',')+1), newSize.value.length));
+           let divArray = divString.value.split(';');
            let gridContainer = document.createElement('div');
-           let divArray = divString.value.split('X')
            gridContainer.setAttribute('id', 'gridContainer');
            document.querySelector('.gridArea').appendChild(gridContainer);
            let side;
@@ -205,7 +233,9 @@
                let square = document.createElement('div');
                square.classList.add('item');
                gridContainer.appendChild(square);
-               square.style.backgroundColor = divArray[i];
+               let x;
+               divArray.length <= i ? x = i % divArray.length : x = i;
+               square.style.backgroundColor = divArray[x];
            }
         }
         </script>
